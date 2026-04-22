@@ -1,0 +1,86 @@
+# Laragon — SSL Setup with OpenCart
+
+## Why SSL in Local Development
+
+Useful when testing:
+- HTTPS behavior (cookies, mixed content)
+- Payment gateways (Stripe, PayPal) that require HTTPS
+- Environments that closely mirror production
+
+---
+
+## Step 1 — Enable SSL in Laragon
+
+Right click tray → **Apache → SSL → Enable SSL** → **Reload**
+
+---
+
+## Step 2 — Install Laragon Root Certificate
+
+This makes the browser automatically trust all `.test` domains.
+
+1. Open File Explorer and go to:
+```
+C:\laragon\etc\ssl\
+```
+
+2. Find the file **`laragon.crt`**
+3. Right click → **Install Certificate**
+4. Select **Local Machine** → Next
+5. Select **"Place all certificates in the following store"** → Browse → **Trusted Root Certification Authorities** → OK
+6. Next → **Finish**
+7. Fully close and reopen Chrome
+
+Your `.test` domains should now show a 🔒 padlock with no warnings.
+
+---
+
+## Step 3 — Update OpenCart config files
+
+OpenCart has hardcoded `http://` URLs that cause **Mixed Content** errors.
+
+**`config.php`**
+```php
+// HTTP
+define('HTTP_SERVER', 'https://opencart.test/');
+
+// HTTPS
+define('HTTPS_SERVER', 'https://opencart.test/');
+```
+
+**`admin/config.php`**
+```php
+// HTTP
+define('HTTP_SERVER', 'https://opencart.test/admin/');
+define('HTTP_CATALOG', 'https://opencart.test/');
+
+// HTTPS
+define('HTTPS_SERVER', 'https://opencart.test/admin/');
+define('HTTPS_CATALOG', 'https://opencart.test/');
+```
+
+---
+
+## Step 4 — Clear Cache
+
+In the admin panel:
+**Extensions → Modifications → Refresh**
+
+Or manually delete the contents of:
+```
+system/storage/cache/
+```
+
+---
+
+## Step 5 — Commit the changes
+
+```bash
+git add config.php admin/config.php
+git commit -m "fix: update HTTP to HTTPS in config files"
+git push
+```
+
+---
+
+> ⚠️ `config.php` and `admin/config.php` should be in `.gitignore` in production as they contain credentials. In local dev, commit them only if they contain no sensitive data.
