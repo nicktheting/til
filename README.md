@@ -16,3 +16,4 @@ A collection of small things I learn day to day as a full stack developer.
 
 ## Laragon
 - [Setup](laragon/setup.md)
+- [SSL with OpenCart](laragon/laragon-ssl-opencart.md)
